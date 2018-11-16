@@ -58,8 +58,8 @@
                                          mod_ssl_config->gainMin,
                                          mod_ssl_config->interpRate);      
 
-        obj->freq2freq_phasor = freq2freq_phasor_construct_zero(obj->halfFrameSize,
-                                                                mod_ssl_config->epsilon);
+        obj->freq2freq_phasor = freq2freq_phasor_construct_zero(obj->halfFrameSize, mod_ssl_config->epsilon);
+        obj->freq2freq_weightedphasor = freq2freq_weightedphasor_construct_zero(obj->halfFrameSize, mod_ssl_config->epsilon);
 
         obj->phasors = freqs_construct_zero(mod_ssl_config->mics->nChannels, 
                                             msg_spectra_config->halfFrameSize);
@@ -105,6 +105,7 @@
         obj->pots = pots_construct_zero(msg_pots_config->nPots);
 
         obj->in = (msg_spectra_obj *) NULL;
+        obj->in_weight = (msg_powers_obj *) NULL;
         obj->out = (msg_pots_obj *) NULL;
 
         obj->enabled = 0;
@@ -121,6 +122,7 @@
         scans_destroy(obj->scans);
 
         freq2freq_phasor_destroy(obj->freq2freq_phasor);
+        freq2freq_weightedphasor_destroy(obj->freq2freq_weightedphasor);
         freq2freq_product_destroy(obj->freq2freq_product);
         freq2freq_interpolate_destroy(obj->freq2freq_interpolate);
         freqs_destroy(obj->phasors);
@@ -164,9 +166,13 @@
 
             if (obj->enabled == 1) {
 
-                freq2freq_phasor_process(obj->freq2freq_phasor, 
-                                         obj->in->freqs, 
-                                         obj->phasors);
+                freq2freq_weightedphasor_process(obj->freq2freq_weightedphasor,
+                                                obj->in->freqs,
+                                                obj->in_weight->envs,
+                                                obj->phasors);
+                //freq2freq_phasor_process(obj->freq2freq_phasor, 
+                //                         obj->in->freqs, 
+                //                         obj->phasors);
 
                 freq2freq_product_process(obj->freq2freq_product, 
                                           obj->phasors, 
@@ -263,9 +269,10 @@
 
     }
 
-    void mod_ssl_connect(mod_ssl_obj * obj, msg_spectra_obj * in, msg_pots_obj * out) {
+    void mod_ssl_connect(mod_ssl_obj * obj, msg_spectra_obj * in, msg_powers_obj *in_weight, msg_pots_obj * out) {
 
         obj->in = in;
+        obj->in_weight = in_weight;
         obj->out = out;
 
     }
@@ -273,6 +280,7 @@
     void mod_ssl_disconnect(mod_ssl_obj * obj) {
 
         obj->in = (msg_spectra_obj *) NULL;
+        obj->in_weight = (msg_powers_obj *) NULL;
         obj->out = (msg_pots_obj *) NULL;
 
     }

@@ -33,6 +33,7 @@
         mod_noise_obj * mod_noise;
         amsg_spectra_obj * in;
         amsg_powers_obj * out;
+        amsg_powers_obj * out_weight;
         thread_obj * thread;    
 
     } amod_noise_obj;
@@ -41,7 +42,7 @@
 
     void amod_noise_destroy(amod_noise_obj * obj);
 
-    void amod_noise_connect(amod_noise_obj * obj, amsg_spectra_obj * in, amsg_powers_obj * out);
+    void amod_noise_connect(amod_noise_obj * obj, amsg_spectra_obj * in, amsg_powers_obj * out, amsg_powers_obj *out_weight);
 
     void amod_noise_disconnect(amod_noise_obj * obj);
 

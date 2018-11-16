@@ -70,7 +70,7 @@
                 thread_start(aobjs->acon_spectra_mics_object->thread);
 
         // +----------------------------------------------------------+
-        // | STFT                                                     |
+        // | Noise                                                    |
         // +----------------------------------------------------------+  
 
             // +------------------------------------------------------+
@@ -84,6 +84,7 @@
             // +------------------------------------------------------+                     
 
                 thread_start(aobjs->acon_powers_mics_object->thread);
+                thread_start(aobjs->acon_weights_mics_object->thread);
 
         // +----------------------------------------------------------+
         // | SSL                                                      |
@@ -348,6 +349,7 @@
             // +------------------------------------------------------+  
 
                 thread_join(aobjs->acon_powers_mics_object->thread);
+                thread_join(aobjs->acon_weights_mics_object->thread);
 
         // +----------------------------------------------------------+
         // | SSL                                                      |
@@ -771,6 +773,7 @@
 
                     begin = clock();
                     con_powers_process(objs->con_powers_mics_object);
+                    con_powers_process(objs->con_weights_mics_object);
                     end = clock();
                     prf->con_powers_mics_prf += (float) (((double) (end-begin)) / CLOCKS_PER_SEC);     
 

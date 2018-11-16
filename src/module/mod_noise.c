@@ -41,9 +41,12 @@
                                                         mod_noise_config->L, 
                                                         mod_noise_config->delta, 
                                                         mod_noise_config->alphaD);
+        obj->env2env_weight = env2env_weight_construct_zero(msg_powers_config->nChannels, msg_powers_config->halfFrameSize, mod_noise_config->alphaD, mod_noise_config->epsilon);
+
 
         obj->in = (msg_spectra_obj *) NULL;
         obj->out = (msg_powers_obj *) NULL;
+        obj->out_weight = (msg_powers_obj *) NULL;
 
         obj->enabled = 0;
 
@@ -56,6 +59,7 @@
         freq2env_destroy(obj->freq2env);
         envs_destroy(obj->envs);
         env2env_mcra_destroy(obj->env2env_mcra);
+        env2env_weight_destroy(obj->env2env_weight);
 
         free((void *) obj);
 
@@ -78,15 +82,22 @@
                                      obj->envs,
                                      NULL,
                                      obj->out->envs);
+                env2env_weight_process(obj->env2env_weight,
+                                       NULL,
+                                       obj->envs,
+                                       obj->out->envs,
+                                       obj->out_weight->envs);
 
             }
             else {
 
                 envs_zero(obj->out->envs);
+                envs_zero(obj->out_weight->envs);
 
             }
 
             obj->out->timeStamp = obj->in->timeStamp;
+            obj->out_weight->timeStamp = obj->in->timeStamp;
 
             rtnValue = 0;
 
@@ -94,6 +105,7 @@
         else {
 
             msg_powers_zero(obj->out);
+            msg_powers_zero(obj->out_weight);
 
             rtnValue = -1;
 
@@ -103,10 +115,11 @@
 
     }
 
-    void mod_noise_connect(mod_noise_obj * obj, msg_spectra_obj * in, msg_powers_obj * out) {
+    void mod_noise_connect(mod_noise_obj * obj, msg_spectra_obj * in, msg_powers_obj * out, msg_powers_obj * out_weight) {
 
         obj->in = in;
         obj->out = out;
+        obj->out_weight = out_weight;
 
     }
 
@@ -114,6 +127,7 @@
 
         obj->in = (msg_spectra_obj *) NULL;
         obj->out = (msg_powers_obj *) NULL;
+        obj->out_weight = (msg_powers_obj *) NULL;
 
     }
 
