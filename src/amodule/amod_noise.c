@@ -33,6 +33,7 @@
         
         obj->in = (amsg_spectra_obj *) NULL;
         obj->out = (amsg_powers_obj *) NULL;
+        obj->out_weight = (amsg_powers_obj *) NULL;
 
         obj->thread = thread_construct(&amod_noise_thread, (void *) obj);
 
@@ -51,10 +52,11 @@
 
     }
 
-    void amod_noise_connect(amod_noise_obj * obj, amsg_spectra_obj * in, amsg_powers_obj * out) {
+    void amod_noise_connect(amod_noise_obj * obj, amsg_spectra_obj * in, amsg_powers_obj * out, amsg_powers_obj * out_weight) {
 
         obj->in = in;
         obj->out = out;
+        obj->out_weight = out_weight;
 
     }
 
@@ -62,6 +64,7 @@
 
         obj->in = (amsg_spectra_obj *) NULL;
         obj->out = (amsg_powers_obj *) NULL;
+        obj->out_weight = (amsg_powers_obj *) NULL;
 
     }
 
@@ -82,6 +85,7 @@
         amod_noise_obj * obj;
         msg_spectra_obj * msg_spectra_in;
         msg_powers_obj * msg_powers_out;
+        msg_powers_obj * msg_powers_out_weight;
         int rtnValue;
 
         obj = (amod_noise_obj *) ptr;
@@ -91,11 +95,13 @@
             // Pop a message, process, and push back
             msg_spectra_in = amsg_spectra_filled_pop(obj->in);
             msg_powers_out = amsg_powers_empty_pop(obj->out);
-            mod_noise_connect(obj->mod_noise, msg_spectra_in, msg_powers_out);
+            msg_powers_out_weight = amsg_powers_empty_pop(obj->out_weight);
+            mod_noise_connect(obj->mod_noise, msg_spectra_in, msg_powers_out, msg_powers_out_weight);
             rtnValue = mod_noise_process(obj->mod_noise);
             mod_noise_disconnect(obj->mod_noise);
             amsg_spectra_empty_push(obj->in, msg_spectra_in);
             amsg_powers_filled_push(obj->out, msg_powers_out);
+            amsg_powers_filled_push(obj->out_weight, msg_powers_out_weight);
 
             // If this is the last frame, rtnValue = -1
             if (rtnValue == -1) {

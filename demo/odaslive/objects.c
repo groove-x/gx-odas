@@ -99,6 +99,7 @@
                 // +--------------------------------------------------+  
 
                     objs->con_powers_mics_object = con_powers_construct(1, cfgs->msg_powers_mics_config);
+                    objs->con_weights_mics_object = con_powers_construct(1, cfgs->msg_powers_mics_config);
 
             // +------------------------------------------------------+
             // | SSL                                                  |
@@ -353,7 +354,8 @@
 
                     mod_noise_connect(objs->mod_noise_mics_object,
                                       objs->con_spectra_mics_object->outs[0],
-                                      objs->con_powers_mics_object->in);
+                                      objs->con_powers_mics_object->in,
+                                      objs->con_weights_mics_object->in);
 
             // +------------------------------------------------------+
             // | SSL                                                  |
@@ -365,6 +367,7 @@
 
                     mod_ssl_connect(objs->mod_ssl_object, 
                                     objs->con_spectra_mics_object->outs[1], 
+                                    objs->con_weights_mics_object->outs[0],
                                     objs->con_pots_ssl_object->in);
 
                 // +--------------------------------------------------+
@@ -510,6 +513,7 @@
             if (cfgs->snk_pots_ssl_config->interface->type != interface_blackhole) {
 
                 mod_ssl_enable(objs->mod_ssl_object);
+                mod_noise_enable(objs->mod_noise_mics_object);
 
             }
 
@@ -646,6 +650,8 @@
                 // +--------------------------------------------------+  
 
                     con_powers_destroy(objs->con_powers_mics_object);
+                    con_powers_destroy(objs->con_weights_mics_object);
+
 
             // +------------------------------------------------------+
             // | SSL                                                  |
@@ -912,6 +918,7 @@
                     
                     objs->acon_powers_mics_object = acon_powers_construct(1, objs->nMessages, cfgs->msg_powers_mics_config);
 
+                    objs->acon_weights_mics_object = acon_powers_construct(1, objs->nMessages, cfgs->msg_powers_mics_config);
             // +------------------------------------------------------+
             // | SSL                                                  |
             // +------------------------------------------------------+  
@@ -1167,7 +1174,8 @@
 
                     amod_noise_connect(objs->amod_noise_mics_object,
                                        objs->acon_spectra_mics_object->outs[0],
-                                       objs->acon_powers_mics_object->in);
+                                       objs->acon_powers_mics_object->in,
+                                       objs->acon_weights_mics_object->in);
 
             // +------------------------------------------------------+
             // | SSL                                                  |
@@ -1178,7 +1186,8 @@
                 // +--------------------------------------------------+  
 
                     amod_ssl_connect(objs->amod_ssl_object, 
-                                     objs->acon_spectra_mics_object->outs[1], 
+                                     objs->acon_spectra_mics_object->outs[1],
+                                     objs->acon_weights_mics_object->outs[0],
                                      objs->acon_pots_ssl_object->in);
 
                 // +--------------------------------------------------+
@@ -1324,6 +1333,7 @@
             if (cfgs->snk_pots_ssl_config->interface->type != interface_blackhole) {
 
                 amod_ssl_enable(objs->amod_ssl_object);
+                amod_noise_enable(objs->amod_noise_mics_object);
 
             }
 
@@ -1331,6 +1341,7 @@
 
                 amod_ssl_enable(objs->amod_ssl_object);
                 amod_sst_enable(objs->amod_sst_object);
+                amod_noise_enable(objs->amod_noise_mics_object);
 
             }
 
@@ -1443,7 +1454,7 @@
                 // | Connector                                        |
                 // +--------------------------------------------------+  
 
-                    acon_spectra_destroy(objs->acon_spectra_mics_object);   
+                    acon_spectra_destroy(objs->acon_spectra_mics_object);
 
             // +------------------------------------------------------+
             // | Noise                                                |
@@ -1459,7 +1470,8 @@
                 // | Connector                                        |
                 // +--------------------------------------------------+  
 
-                    acon_powers_destroy(objs->acon_powers_mics_object);  
+                    acon_powers_destroy(objs->acon_powers_mics_object);
+                    acon_powers_destroy(objs->acon_weights_mics_object);
 
             // +------------------------------------------------------+
             // | SSL                                                  |

@@ -435,6 +435,7 @@
         // +----------------------------------------------------------+
 
             cfg->alphaD = parameters_lookup_float(fileConfig, "sne.alphaD");            
+            cfg->epsilon = parameters_lookup_float(fileConfig, "general.epsilon");
 
         return cfg;
 

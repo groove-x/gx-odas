@@ -32,6 +32,7 @@
         obj->mod_ssl = mod_ssl_construct(mod_ssl_config, msg_spectra_config, msg_pots_config);
         
         obj->in = (amsg_spectra_obj *) NULL;
+        obj->in_weight = (amsg_powers_obj *) NULL;
         obj->out = (amsg_pots_obj *) NULL;
 
         obj->thread = thread_construct(&amod_ssl_thread, (void *) obj);
@@ -51,9 +52,10 @@
 
     }
 
-    void amod_ssl_connect(amod_ssl_obj * obj, amsg_spectra_obj * in, amsg_pots_obj * out) {
+    void amod_ssl_connect(amod_ssl_obj * obj, amsg_spectra_obj * in, amsg_powers_obj * in_weight, amsg_pots_obj * out) {
 
         obj->in = in;
+        obj->in_weight = in_weight;
         obj->out = out;
 
     }
@@ -61,6 +63,7 @@
     void amod_ssl_disconnect(amod_ssl_obj * obj) {
 
         obj->in = (amsg_spectra_obj *) NULL;
+        obj->in_weight = (amsg_powers_obj *) NULL;
         obj->out = (amsg_pots_obj *) NULL;
 
     }
@@ -81,6 +84,7 @@
 
         amod_ssl_obj * obj;
         msg_spectra_obj * msg_spectra_in;
+        msg_powers_obj * msg_powers_in_weight;
         msg_pots_obj * msg_pots_out;
         int rtnValue;
 
@@ -90,11 +94,13 @@
 
             // Pop a message, process, and push back
             msg_spectra_in = amsg_spectra_filled_pop(obj->in);
+            msg_powers_in_weight = amsg_powers_filled_pop(obj->in_weight);
             msg_pots_out = amsg_pots_empty_pop(obj->out);
-            mod_ssl_connect(obj->mod_ssl, msg_spectra_in, msg_pots_out);
+            mod_ssl_connect(obj->mod_ssl, msg_spectra_in, msg_powers_in_weight, msg_pots_out);
             rtnValue = mod_ssl_process(obj->mod_ssl);
             mod_ssl_disconnect(obj->mod_ssl);
             amsg_spectra_empty_push(obj->in, msg_spectra_in);
+            amsg_powers_empty_push(obj->in_weight, msg_powers_in_weight);
             amsg_pots_filled_push(obj->out, msg_pots_out);
 
             // If this is the last frame, rtnValue = -1

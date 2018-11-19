@@ -72,6 +72,7 @@
        
         freq2env_obj * freq2env;
         freq2freq_phasor_obj * freq2freq_phasor;
+        freq2freq_weightedphasor_obj * freq2freq_weightedphasor;
         freq2freq_product_obj * freq2freq_product;
         freq2freq_interpolate_obj * freq2freq_interpolate;
         freq2xcorr_obj * freq2xcorr;
@@ -83,6 +84,7 @@
         pots_obj * pots;
 
         msg_spectra_obj * in;
+        msg_powers_obj * in_weight;
         msg_pots_obj * out;
 
         char enabled;
@@ -115,7 +117,7 @@
 
     int mod_ssl_process(mod_ssl_obj * obj);
 
-    void mod_ssl_connect(mod_ssl_obj * obj, msg_spectra_obj * in, msg_pots_obj * out);
+    void mod_ssl_connect(mod_ssl_obj * obj, msg_spectra_obj * in, msg_powers_obj * in_weight, msg_pots_obj * out);
 
     void mod_ssl_disconnect(mod_ssl_obj * obj);
 

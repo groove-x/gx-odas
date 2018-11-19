@@ -33,9 +33,11 @@
         freq2env_obj * freq2env;
         envs_obj * envs;
         env2env_mcra_obj * env2env_mcra;
+        env2env_weight_obj * env2env_weight;
 
         msg_spectra_obj * in;
         msg_powers_obj * out;        
+        msg_powers_obj * out_weight;
 
         char enabled;
 
@@ -48,6 +50,7 @@
         unsigned int L;
         float delta;
         float alphaD;
+        float epsilon;
 
     } mod_noise_cfg;
 
@@ -57,7 +60,7 @@
 
     int mod_noise_process(mod_noise_obj * obj);
 
-    void mod_noise_connect(mod_noise_obj * obj, msg_spectra_obj * in, msg_powers_obj * out);
+    void mod_noise_connect(mod_noise_obj * obj, msg_spectra_obj * in, msg_powers_obj * out, msg_powers_obj * out_weight);
 
     void mod_noise_disconnect(mod_noise_obj * obj);
 
