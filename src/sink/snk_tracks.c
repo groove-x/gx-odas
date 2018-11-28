@@ -40,6 +40,7 @@
         if (!(((obj->interface->type == interface_blackhole)  && (obj->format->type == format_undefined)) ||
               ((obj->interface->type == interface_file)  && (obj->format->type == format_text_json)) ||
               ((obj->interface->type == interface_socket)  && (obj->format->type == format_text_json)) ||
+              ((obj->interface->type == interface_redis)  && (obj->format->type == format_text_csv)) ||
               ((obj->interface->type == interface_terminal) && (obj->format->type == format_text_json)))) {
             
             interface_printf(obj->interface);
@@ -107,6 +108,12 @@
 
             break;
 
+            case interface_redis:
+
+                snk_tracks_open_interface_redis(obj);
+
+            break;
+
             case interface_terminal:
 
                 snk_tracks_open_interface_terminal(obj);
@@ -118,7 +125,7 @@
                 printf("Sink tracks: Invalid interface type.\n");
                 exit(EXIT_FAILURE);
 
-            break;           
+            break;
 
         }
 
@@ -155,9 +162,20 @@
             printf("Sink tracks: Cannot connect to server\n");
             exit(EXIT_FAILURE);
 
-        }   
+        }
 
     }
+
+    void snk_tracks_open_interface_redis(snk_tracks_obj * obj) {
+
+        obj->redis = redisConnect(obj->interface->ip, obj->interface->port);
+        if (obj->redis != NULL && obj->redis->err) {
+            printf("Sink tracks: Cannot connect to redis server\n");
+            exit(EXIT_FAILURE);
+        }
+
+    }
+
 
     void snk_tracks_open_interface_terminal(snk_tracks_obj * obj) {
 
@@ -184,6 +202,12 @@
             case interface_socket:
 
                 snk_tracks_close_interface_socket(obj);
+
+            break;
+
+            case interface_redis:
+
+                snk_tracks_close_interface_redis(obj);
 
             break;
 
@@ -222,6 +246,12 @@
 
     }
 
+    void snk_tracks_close_interface_redis(snk_tracks_obj * obj) {
+
+        redisFree(obj->redis);
+
+    }
+
     void snk_tracks_close_interface_terminal(snk_tracks_obj * obj) {
 
         // Empty
@@ -242,6 +272,12 @@
 
                 break;
 
+                case format_text_csv:
+
+                    snk_tracks_process_format_text_csv(obj);
+
+                break;
+
                 case format_undefined:
 
                     snk_tracks_process_format_undefined(obj);
@@ -253,7 +289,7 @@
                     printf("Sink tracks: Invalid format type.\n");
                     exit(EXIT_FAILURE);
 
-                break;                
+                break;
 
             }
 
@@ -274,6 +310,12 @@
                 case interface_socket:
 
                     snk_tracks_process_interface_socket(obj);
+
+                break;
+
+                case interface_redis:
+
+                    snk_tracks_process_interface_redis(obj);
 
                 break;
 
@@ -322,8 +364,20 @@
         if (send(obj->sid, obj->buffer, obj->bufferSize, 0) < 0) {
             printf("Sink tracks: Could not send message.\n");
             exit(EXIT_FAILURE);
-        }  
+        }
 
+    }
+
+    void snk_tracks_process_interface_redis(snk_tracks_obj * obj) {
+        struct timeval time;
+        if (obj->bufferSize > 0) {
+            gettimeofday(&time, NULL);
+            redisReply *reply;
+            reply = redisCommand(obj->redis,
+              "PUBLISH %s %lu%04lu,%s",
+               obj->interface->channel, time.tv_sec, time.tv_usec / 1000, obj->buffer);
+            freeReplyObject(reply);
+        }
     }
 
     void snk_tracks_process_interface_terminal(snk_tracks_obj * obj) {
@@ -366,6 +420,32 @@
         sprintf(obj->buffer,"%s    ]\n",obj->buffer);
         sprintf(obj->buffer,"%s}\n",obj->buffer);
 
+        obj->bufferSize = strlen(obj->buffer);
+
+    }
+
+    void snk_tracks_process_format_text_csv(snk_tracks_obj * obj) {
+
+        unsigned int iTrack;
+        float x, y;
+
+        memset(obj->buffer, 0x00, sizeof(char) * 1024);
+
+
+        for (iTrack = 0; iTrack < obj->nTracks; iTrack++) {
+            if (obj->in->tracks->ids[iTrack] != 0) {
+              x = obj->in->tracks->array[iTrack*3+0];
+              y = obj->in->tracks->array[iTrack*3+1];
+
+              sprintf(obj->buffer,"%s,%llu,%d,%d,%1.3f",
+                    obj->buffer,
+                    obj->in->tracks->ids[iTrack],
+                    (int)(atan2f(y, x) * 1000.0f),
+                    (int)(acosf(obj->in->tracks->array[iTrack*3+2] /
+                      sqrtf(x * x + y * y)) * 1000.0f),
+                    obj->in->tracks->activity[iTrack]);
+            }
+        }
         obj->bufferSize = strlen(obj->buffer);
 
     }

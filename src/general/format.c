@@ -15,7 +15,7 @@
     * but WITHOUT ANY WARRANTY; without even the implied warranty of
     * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
     * GNU General Public License for more details.
-    * 
+    *
     * You should have received a copy of the GNU General Public License
     * along with this program.  If not, see <http://www.gnu.org/licenses/>.
     *
@@ -43,8 +43,8 @@
 
         obj->type = format_undefined;
 
-        return obj;        
-        
+        return obj;
+
     }
 
     format_obj * format_construct_binary_int(const unsigned int nBits) {
@@ -111,6 +111,18 @@
         obj = (format_obj *) malloc(sizeof(format_obj));
 
         obj->type = format_text_json;
+
+        return obj;
+
+    }
+
+    format_obj * format_construct_text_csv() {
+
+        format_obj * obj;
+
+        obj = (format_obj *) malloc(sizeof(format_obj));
+
+        obj->type = format_text_csv;
 
         return obj;
 
