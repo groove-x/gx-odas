@@ -374,7 +374,7 @@
             gettimeofday(&time, NULL);
             redisReply *reply;
             reply = redisCommand(obj->redis,
-              "PUBLISH %s %lu%04lu,%s",
+              "PUBLISH %s %lu%04lu%s",
                obj->interface->channel, time.tv_sec, time.tv_usec / 1000, obj->buffer);
             freeReplyObject(reply);
         }
