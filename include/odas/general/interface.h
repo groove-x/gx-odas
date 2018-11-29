@@ -35,6 +35,7 @@
         interface_socket = 3,
         interface_soundcard = 4,
         interface_terminal = 5,
+        interface_redis = 6,
 
     } interface_type;
 
@@ -46,6 +47,7 @@
 
         char * ip;
         unsigned int port;
+        char * channel;
 
         char * deviceName;
 
@@ -58,6 +60,8 @@
     interface_obj * interface_construct_file(const char * fileName);
 
     interface_obj * interface_construct_socket(const char * ip, const unsigned int port);
+
+    interface_obj * interface_construct_redis(const char * ip, const unsigned int port, const char * channel);
 
     interface_obj * interface_construct_soundcard(const unsigned int card, const unsigned int device);
 

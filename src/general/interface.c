@@ -15,7 +15,7 @@
     * but WITHOUT ANY WARRANTY; without even the implied warranty of
     * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
     * GNU General Public License for more details.
-    * 
+    *
     * You should have received a copy of the GNU General Public License
     * along with this program.  If not, see <http://www.gnu.org/licenses/>.
     *
@@ -53,6 +53,7 @@
 
             obj->ip = (char *) NULL;
             obj->port = 0;
+            obj->channel = (char *) NULL;
 
         // +----------------------------------------------------------+
         // | Soundcard                                                |
@@ -100,6 +101,7 @@
 
             obj->ip = (char *) NULL;
             obj->port = 0;
+            obj->channel = (char *) NULL;
 
         // +----------------------------------------------------------+
         // | Soundcard                                                |
@@ -148,6 +150,7 @@
 
             obj->ip = (char *) NULL;
             obj->port = 0;
+            obj->channel = (char *) NULL;
 
         // +----------------------------------------------------------+
         // | Soundcard                                                |
@@ -196,6 +199,7 @@
             obj->ip = (char *) malloc(sizeof(char) * (strlen(ip)+1));
             strcpy(obj->ip, ip);
             obj->port = port;
+            obj->channel = (char *) NULL;
 
         // +----------------------------------------------------------+
         // | Soundcard                                                |
@@ -209,9 +213,60 @@
 
             // (Empty)
 
-        return obj;        
+        return obj;
 
     }
+
+    interface_obj * interface_construct_redis(const char * ip, const unsigned int port, const char * channel) {
+
+        interface_obj * obj;
+
+        obj = (interface_obj *) malloc(sizeof(interface_obj));
+
+        // +----------------------------------------------------------+
+        // | Type                                                     |
+        // +----------------------------------------------------------+
+
+            obj->type = interface_redis;
+
+        // +----------------------------------------------------------+
+        // | Blackhole                                                |
+        // +----------------------------------------------------------+
+
+            // (Empty)
+
+        // +----------------------------------------------------------+
+        // | File                                                     |
+        // +----------------------------------------------------------+
+
+            obj->fileName = (char *) NULL;
+
+        // +----------------------------------------------------------+
+        // | Redis                                                   |
+        // +----------------------------------------------------------+
+
+            obj->ip = (char *) malloc(sizeof(char) * (strlen(ip)+1));
+            strcpy(obj->ip, ip);
+            obj->port = port;
+            obj->channel = (char *) malloc(sizeof(char) * (strlen(channel)+1));
+            strcpy(obj->channel, channel);
+
+        // +----------------------------------------------------------+
+        // | Soundcard                                                |
+        // +----------------------------------------------------------+
+
+        obj->deviceName = (char *) NULL;
+
+        // +----------------------------------------------------------+
+        // | Terminal                                                 |
+        // +----------------------------------------------------------+
+
+            // (Empty)
+
+        return obj;
+
+    }
+
 
    interface_obj * interface_construct_soundcard(const unsigned int card, const unsigned int device) {
 
@@ -253,6 +308,7 @@
 
        obj->ip = (char *) NULL;
        obj->port = 0;
+       obj->channel = (char *) NULL;
 
        // +----------------------------------------------------------+
        // | Soundcard                                                |
@@ -300,6 +356,7 @@
 
             obj->ip = (char *) NULL;
             obj->port = 0;
+            obj->channel = (char *) NULL;
 
         // +----------------------------------------------------------+
         // | Soundcard                                                |
@@ -327,7 +384,7 @@
         // | Type                                                     |
         // +----------------------------------------------------------+
 
-            clone->type = obj->type;        
+            clone->type = obj->type;
 
         // +----------------------------------------------------------+
         // | Blackhole                                                |
@@ -340,7 +397,7 @@
         // +----------------------------------------------------------+
 
             if (obj->type == interface_file) {
-                
+
                 clone->fileName = (char *) malloc(sizeof(char) * (strlen(obj->fileName) + 1));
                 strcpy(clone->fileName, obj->fileName);
 
@@ -348,13 +405,27 @@
 
         // +----------------------------------------------------------+
         // | Socket                                                   |
-        // +----------------------------------------------------------+                
+        // +----------------------------------------------------------+
 
             if (obj->type == interface_socket) {
-                
+
                 clone->ip = (char *) malloc(sizeof(char) * (strlen(obj->ip) + 1));
                 strcpy(clone->ip, obj->ip);
                 clone->port = obj->port;
+
+            }
+
+        // +----------------------------------------------------------+
+        // | Redis                                                    |
+        // +----------------------------------------------------------+
+
+            if (obj->type == interface_redis) {
+
+                clone->ip = (char *) malloc(sizeof(char) * (strlen(obj->ip) + 1));
+                strcpy(clone->ip, obj->ip);
+                clone->port = obj->port;
+                clone->channel = (char *) malloc(sizeof(char) * (strlen(obj->channel) + 1));
+                strcpy(clone->channel, obj->channel);
 
             }
 
@@ -378,11 +449,7 @@
 
     void interface_destroy(interface_obj * obj) {
 
-        if (obj->fileName != NULL) {
-
-            free((void *) obj->fileName);
-
-        }
+        free((void *) obj->fileName);
 
         /* Will propably be freed somewhere else. Which is a bit ugly.
         if (obj->deviceName != NULL) {
@@ -392,11 +459,9 @@
         }
         */
 
-        if (obj->ip != NULL) {
+        free((void *) obj->ip);
+        free((void *) obj->channel);
 
-            free((void *) obj->ip);
-
-        }
 
         free((void *) obj);
 
@@ -425,6 +490,13 @@
                     printf("type = socket, ip = %s, port = %u\n",obj->ip,obj->port);
 
                 break;
+
+                case interface_redis:
+
+                    printf("type = redis, ip = %s, port = %u, channel = %s\n",obj->ip, obj->port, obj->channel);
+
+                break;
+
 
                 case interface_soundcard:
 
