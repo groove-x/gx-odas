@@ -441,7 +441,7 @@
                     obj->buffer,
                     obj->in->tracks->ids[iTrack],
                     (int)(atan2f(y, x) * 1000.0f),
-                    (int)(acosf(obj->in->tracks->array[iTrack*3+2] /
+                    (int)(atanf(obj->in->tracks->array[iTrack*3+2] /
                       sqrtf(x * x + y * y)) * 1000.0f),
                     obj->in->tracks->activity[iTrack]);
             }
