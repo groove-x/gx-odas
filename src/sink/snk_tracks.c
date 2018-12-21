@@ -376,6 +376,10 @@
             reply = redisCommand(obj->redis,
               "PUBLISH %s %lu%03lu%s",
                obj->interface->channel, time.tv_sec, time.tv_usec / 1000, obj->buffer);
+            if (reply == NULL) {
+                printf("Sink tracks: Could not publish the message to the redis server.\n");
+                exit(EXIT_FAILURE);
+            }
             freeReplyObject(reply);
         }
     }
