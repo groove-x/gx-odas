@@ -1,0 +1,8 @@
+tags
+build/*
+bin/*
+lib/*
+
+*.raw
+*.o
+*.swp
