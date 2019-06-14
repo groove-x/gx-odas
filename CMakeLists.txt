@@ -197,6 +197,7 @@ target_link_libraries(odas
     ${PC_HIREDIS_LIBRARIES}
     m
     pthread
+    rt
 )
 
 add_executable(odaslive

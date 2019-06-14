@@ -33,7 +33,7 @@
         // | Type                                                     |
         // +----------------------------------------------------------+
 
-            obj->type = interface_undefined;
+        obj->type = interface_undefined;
 
         // +----------------------------------------------------------+
         // | Blackhole                                                |
@@ -45,15 +45,15 @@
         // | File                                                     |
         // +----------------------------------------------------------+
 
-            obj->fileName = (char *) NULL;
+        obj->fileName = (char *) NULL;
 
         // +----------------------------------------------------------+
         // | Socket                                                   |
         // +----------------------------------------------------------+
 
-            obj->ip = (char *) NULL;
-            obj->port = 0;
-            obj->channel = (char *) NULL;
+        obj->ip = (char *) NULL;
+        obj->port = 0;
+        obj->channel = (char *) NULL;
 
         // +----------------------------------------------------------+
         // | Soundcard                                                |
@@ -66,6 +66,12 @@
         // +----------------------------------------------------------+
 
             // (Empty)
+
+        // +----------------------------------------------------------+
+        // | Shared Mamory                                            |
+        // +----------------------------------------------------------+
+
+        obj->shmName = (char *) NULL;
 
         return obj;
 
@@ -81,7 +87,7 @@
         // | Type                                                     |
         // +----------------------------------------------------------+
 
-            obj->type = interface_blackhole;
+        obj->type = interface_blackhole;
 
         // +----------------------------------------------------------+
         // | Blackhole                                                |
@@ -93,15 +99,15 @@
         // | File                                                     |
         // +----------------------------------------------------------+
 
-            obj->fileName = (char *) NULL;
+        obj->fileName = (char *) NULL;
 
         // +----------------------------------------------------------+
         // | Socket                                                   |
         // +----------------------------------------------------------+
 
-            obj->ip = (char *) NULL;
-            obj->port = 0;
-            obj->channel = (char *) NULL;
+        obj->ip = (char *) NULL;
+        obj->port = 0;
+        obj->channel = (char *) NULL;
 
         // +----------------------------------------------------------+
         // | Soundcard                                                |
@@ -114,6 +120,12 @@
         // +----------------------------------------------------------+
 
             // (Empty)
+
+        // +----------------------------------------------------------+
+        // | Shared Mamory                                            |
+        // +----------------------------------------------------------+
+
+        obj->shmName = (char *) NULL;
 
         return obj;
 
@@ -129,7 +141,7 @@
         // | Type                                                     |
         // +----------------------------------------------------------+
 
-            obj->type = interface_file;
+        obj->type = interface_file;
 
         // +----------------------------------------------------------+
         // | Blackhole                                                |
@@ -141,16 +153,16 @@
         // | File                                                     |
         // +----------------------------------------------------------+
 
-            obj->fileName = (char *) malloc(sizeof(char) * (strlen(fileName)+1));
-            strcpy(obj->fileName, fileName);
+        obj->fileName = (char *) malloc(sizeof(char) * (strlen(fileName)+1));
+        strcpy(obj->fileName, fileName);
 
         // +----------------------------------------------------------+
         // | Socket                                                   |
         // +----------------------------------------------------------+
 
-            obj->ip = (char *) NULL;
-            obj->port = 0;
-            obj->channel = (char *) NULL;
+        obj->ip = (char *) NULL;
+        obj->port = 0;
+        obj->channel = (char *) NULL;
 
         // +----------------------------------------------------------+
         // | Soundcard                                                |
@@ -163,6 +175,12 @@
         // +----------------------------------------------------------+
 
             // (Empty)
+
+        // +----------------------------------------------------------+
+        // | Shared Mamory                                            |
+        // +----------------------------------------------------------+
+
+        obj->shmName = (char *) NULL;
 
         return obj;
 
@@ -178,7 +196,7 @@
         // | Type                                                     |
         // +----------------------------------------------------------+
 
-            obj->type = interface_socket;
+        obj->type = interface_socket;
 
         // +----------------------------------------------------------+
         // | Blackhole                                                |
@@ -190,16 +208,16 @@
         // | File                                                     |
         // +----------------------------------------------------------+
 
-            obj->fileName = (char *) NULL;
+        obj->fileName = (char *) NULL;
 
         // +----------------------------------------------------------+
         // | Socket                                                   |
         // +----------------------------------------------------------+
 
-            obj->ip = (char *) malloc(sizeof(char) * (strlen(ip)+1));
-            strcpy(obj->ip, ip);
-            obj->port = port;
-            obj->channel = (char *) NULL;
+        obj->ip = (char *) malloc(sizeof(char) * (strlen(ip)+1));
+        strcpy(obj->ip, ip);
+        obj->port = port;
+        obj->channel = (char *) NULL;
 
         // +----------------------------------------------------------+
         // | Soundcard                                                |
@@ -212,6 +230,12 @@
         // +----------------------------------------------------------+
 
             // (Empty)
+
+        // +----------------------------------------------------------+
+        // | Shared Mamory                                            |
+        // +----------------------------------------------------------+
+
+        obj->shmName = (char *) NULL;
 
         return obj;
 
@@ -227,7 +251,7 @@
         // | Type                                                     |
         // +----------------------------------------------------------+
 
-            obj->type = interface_redis;
+        obj->type = interface_redis;
 
         // +----------------------------------------------------------+
         // | Blackhole                                                |
@@ -239,17 +263,17 @@
         // | File                                                     |
         // +----------------------------------------------------------+
 
-            obj->fileName = (char *) NULL;
+        obj->fileName = (char *) NULL;
 
         // +----------------------------------------------------------+
         // | Redis                                                   |
         // +----------------------------------------------------------+
 
-            obj->ip = (char *) malloc(sizeof(char) * (strlen(ip)+1));
-            strcpy(obj->ip, ip);
-            obj->port = port;
-            obj->channel = (char *) malloc(sizeof(char) * (strlen(channel)+1));
-            strcpy(obj->channel, channel);
+        obj->ip = (char *) malloc(sizeof(char) * (strlen(ip)+1));
+        strcpy(obj->ip, ip);
+        obj->port = port;
+        obj->channel = (char *) malloc(sizeof(char) * (strlen(channel)+1));
+        strcpy(obj->channel, channel);
 
         // +----------------------------------------------------------+
         // | Soundcard                                                |
@@ -263,69 +287,81 @@
 
             // (Empty)
 
+        // +----------------------------------------------------------+
+        // | Shared Mamory                                            |
+        // +----------------------------------------------------------+
+
+        obj->shmName = (char *) NULL;
+
         return obj;
 
     }
 
 
-   interface_obj * interface_construct_soundcard(const unsigned int card, const unsigned int device) {
-
-       char * deviceName = (char *) malloc(sizeof(char) * 1024);
-
-       sprintf(deviceName, "hw:%u,%u", card, device);
-
-       return interface_construct_soundcard_by_name(deviceName);
-
-   }
-
-   interface_obj * interface_construct_soundcard_by_name(char * deviceName) {
-
-       interface_obj * obj;
-
-       obj = (interface_obj *) malloc(sizeof(interface_obj));
-
-       // +----------------------------------------------------------+
-       // | Type                                                     |
-       // +----------------------------------------------------------+
-
-       obj->type = interface_soundcard;
-
-       // +----------------------------------------------------------+
-       // | Blackhole                                                |
-       // +----------------------------------------------------------+
-
-       // (Empty)
-
-       // +----------------------------------------------------------+
-       // | File                                                     |
-       // +----------------------------------------------------------+
-
-       obj->fileName = (char *) NULL;
-
-       // +----------------------------------------------------------+
-       // | Socket                                                   |
-       // +----------------------------------------------------------+
-
-       obj->ip = (char *) NULL;
-       obj->port = 0;
-       obj->channel = (char *) NULL;
-
-       // +----------------------------------------------------------+
-       // | Soundcard                                                |
-       // +----------------------------------------------------------+
-
-       obj->deviceName = deviceName;
-
-       // +----------------------------------------------------------+
-       // | Terminal                                                 |
-       // +----------------------------------------------------------+
-
-       // (Empty)
-
-       return obj;
-
-   }
-
+    interface_obj * interface_construct_soundcard(const unsigned int card, const unsigned int device) {
+ 
+        char * deviceName = (char *) malloc(sizeof(char) * 1024);
+ 
+        sprintf(deviceName, "hw:%u,%u", card, device);
+ 
+        return interface_construct_soundcard_by_name(deviceName);
+ 
+    }
+ 
+    interface_obj * interface_construct_soundcard_by_name(char * deviceName) {
+ 
+        interface_obj * obj;
+ 
+        obj = (interface_obj *) malloc(sizeof(interface_obj));
+ 
+        // +----------------------------------------------------------+
+        // | Type                                                     |
+        // +----------------------------------------------------------+
+ 
+        obj->type = interface_soundcard;
+ 
+        // +----------------------------------------------------------+
+        // | Blackhole                                                |
+        // +----------------------------------------------------------+
+ 
+        // (Empty)
+ 
+        // +----------------------------------------------------------+
+        // | File                                                     |
+        // +----------------------------------------------------------+
+ 
+        obj->fileName = (char *) NULL;
+ 
+        // +----------------------------------------------------------+
+        // | Socket                                                   |
+        // +----------------------------------------------------------+
+ 
+        obj->ip = (char *) NULL;
+        obj->port = 0;
+        obj->channel = (char *) NULL;
+ 
+        // +----------------------------------------------------------+
+        // | Soundcard                                                |
+        // +----------------------------------------------------------+
+ 
+        obj->deviceName = deviceName;
+ 
+        // +----------------------------------------------------------+
+        // | Terminal                                                 |
+        // +----------------------------------------------------------+
+ 
+        // (Empty)
+ 
+        // +----------------------------------------------------------+
+        // | Shared Mamory                                            |
+        // +----------------------------------------------------------+
+ 
+        obj->shmName = (char *) NULL;
+ 
+        return obj;
+ 
+    }
+ 
     interface_obj * interface_construct_terminal(void) {
 
         interface_obj * obj;
@@ -370,6 +406,66 @@
 
             // (Empty)
 
+        // +----------------------------------------------------------+
+        // | Shared Mamory                                            |
+        // +----------------------------------------------------------+
+
+        obj->shmName = (char *) NULL;
+        return obj;
+
+    }
+
+    interface_obj * interface_construct_shm(const char * shmName) {
+
+        interface_obj * obj;
+
+        obj = (interface_obj *) malloc(sizeof(interface_obj));
+
+        // +----------------------------------------------------------+
+        // | Type                                                     |
+        // +----------------------------------------------------------+
+
+        obj->type = interface_shm;
+
+        // +----------------------------------------------------------+
+        // | Blackhole                                                |
+        // +----------------------------------------------------------+
+
+            // (Empty)
+
+        // +----------------------------------------------------------+
+        // | File                                                     |
+        // +----------------------------------------------------------+
+
+        obj->fileName = (char *) NULL;
+
+        // +----------------------------------------------------------+
+        // | Socket                                                   |
+        // +----------------------------------------------------------+
+
+        obj->ip = (char *) NULL;
+        obj->port = 0;
+        obj->channel = (char *) NULL;
+
+        // +----------------------------------------------------------+
+        // | Soundcard                                                |
+        // +----------------------------------------------------------+
+
+        obj->deviceName = (char *) NULL;
+
+        // +----------------------------------------------------------+
+        // | Terminal                                                 |
+        // +----------------------------------------------------------+
+
+            // (Empty)
+            //
+        // +----------------------------------------------------------+
+        // | Shared Memory                                            |
+        // +----------------------------------------------------------+
+
+        obj->shmName = (char *) malloc(sizeof(char) * (strlen(shmName) + 1));
+        strcpy(obj->shmName, shmName);
+
         return obj;
 
     }
@@ -384,7 +480,7 @@
         // | Type                                                     |
         // +----------------------------------------------------------+
 
-            clone->type = obj->type;
+        clone->type = obj->type;
 
         // +----------------------------------------------------------+
         // | Blackhole                                                |
@@ -396,46 +492,46 @@
         // | File                                                     |
         // +----------------------------------------------------------+
 
-            if (obj->type == interface_file) {
+        if (obj->type == interface_file) {
 
-                clone->fileName = (char *) malloc(sizeof(char) * (strlen(obj->fileName) + 1));
-                strcpy(clone->fileName, obj->fileName);
+            clone->fileName = (char *) malloc(sizeof(char) * (strlen(obj->fileName) + 1));
+            strcpy(clone->fileName, obj->fileName);
 
-            }
+        }
 
         // +----------------------------------------------------------+
         // | Socket                                                   |
         // +----------------------------------------------------------+
 
-            if (obj->type == interface_socket) {
+        if (obj->type == interface_socket) {
 
-                clone->ip = (char *) malloc(sizeof(char) * (strlen(obj->ip) + 1));
-                strcpy(clone->ip, obj->ip);
-                clone->port = obj->port;
+            clone->ip = (char *) malloc(sizeof(char) * (strlen(obj->ip) + 1));
+            strcpy(clone->ip, obj->ip);
+            clone->port = obj->port;
 
-            }
+        }
 
         // +----------------------------------------------------------+
         // | Redis                                                    |
         // +----------------------------------------------------------+
 
-            if (obj->type == interface_redis) {
+        if (obj->type == interface_redis) {
 
-                clone->ip = (char *) malloc(sizeof(char) * (strlen(obj->ip) + 1));
-                strcpy(clone->ip, obj->ip);
-                clone->port = obj->port;
-                clone->channel = (char *) malloc(sizeof(char) * (strlen(obj->channel) + 1));
-                strcpy(clone->channel, obj->channel);
+            clone->ip = (char *) malloc(sizeof(char) * (strlen(obj->ip) + 1));
+            strcpy(clone->ip, obj->ip);
+            clone->port = obj->port;
+            clone->channel = (char *) malloc(sizeof(char) * (strlen(obj->channel) + 1));
+            strcpy(clone->channel, obj->channel);
 
-            }
+        }
 
         // +----------------------------------------------------------+
         // | Soundcard                                                |
         // +----------------------------------------------------------+
 
-            if (obj->type == interface_soundcard) {
-                clone->deviceName = obj->deviceName;
-            }
+        if (obj->type == interface_soundcard) {
+            clone->deviceName = obj->deviceName;
+        }
 
         // +----------------------------------------------------------+
         // | Terminal                                                 |
@@ -443,6 +539,15 @@
 
             // (Empty)
 
+        // +----------------------------------------------------------+
+        // | Shared Memory                                            |
+        // +----------------------------------------------------------+
+        if (obj->type == interface_shm) {
+
+            clone->shmName = (char *) malloc(sizeof(char) * (strlen(obj->shmName) + 1));
+            strcpy(clone->shmName, obj->shmName);
+
+        }
         return clone;
 
     }
@@ -450,6 +555,7 @@
     void interface_destroy(interface_obj * obj) {
 
         free((void *) obj->fileName);
+        free((void *) obj->shmName);
 
         /* Will propably be freed somewhere else. Which is a bit ugly.
         if (obj->deviceName != NULL) {
@@ -502,11 +608,17 @@
 
                     printf("type = soundcard_name, devicename = %s\n",obj->deviceName);
 
-                    break;
+                break;
 
                 case interface_terminal:
 
                     printf("type = terminal\n");
+
+                break;
+
+                case interface_shm:
+
+                    printf("type = shared memory, name = %s\n",obj->shmName);
 
                 break;
 
