@@ -27,12 +27,23 @@
     #include <stdio.h>
     #include <string.h>
     #include <alsa/asoundlib.h>
+    #include <sys/mman.h>
+    #include <sys/stat.h>
+    #include <fcntl.h>
+    #include <semaphore.h>
+    #include <time.h>
 
     #include "../general/format.h"
     #include "../general/interface.h"
     #include "../message/msg_hops.h"
     #include "../signal/hop.h"
     #include "../utils/pcm.h"
+
+    typedef struct src_hops_shm {
+        sem_t access;
+        sem_t store;
+        int16_t data[];
+    } src_hops_shm;
 
     typedef struct src_hops_obj {
 
@@ -52,6 +63,8 @@
         unsigned int bufferSize;
 
         char bytes[4];
+
+        src_hops_shm * shm;
 
         msg_hops_obj * out;
 
@@ -78,17 +91,23 @@
 
     void src_hops_open_interface_soundcard(src_hops_obj * obj);
 
+    void src_hops_open_interface_shm(src_hops_obj * obj);
+
     void src_hops_close(src_hops_obj * obj);
 
     void src_hops_close_interface_file(src_hops_obj * obj);
 
     void src_hops_close_interface_soundcard(src_hops_obj * obj);
 
+    void src_hops_close_interface_shm(src_hops_obj * obj);
+
     int src_hops_process(src_hops_obj * obj);
 
     int src_hops_process_interface_file(src_hops_obj * obj);
 
     int src_hops_process_interface_soundcard(src_hops_obj * obj);
+
+    int src_hops_process_interface_shm(src_hops_obj * obj);
 
     void src_hops_process_format_binary_int08(src_hops_obj * obj);
 

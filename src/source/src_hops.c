@@ -48,7 +48,8 @@
               ((obj->interface->type == interface_soundcard)  && (obj->format->type == format_binary_int08)) ||
               ((obj->interface->type == interface_soundcard)  && (obj->format->type == format_binary_int16)) ||
               ((obj->interface->type == interface_soundcard)  && (obj->format->type == format_binary_int24)) ||
-              ((obj->interface->type == interface_soundcard)  && (obj->format->type == format_binary_int32)))) {
+              ((obj->interface->type == interface_soundcard)  && (obj->format->type == format_binary_int32)) ||
+              ((obj->interface->type == interface_shm)  && (obj->format->type == format_binary_int16)))) {
             
             printf("Source hops: Invalid interface and/or format.\n");
             exit(EXIT_FAILURE);
@@ -108,6 +109,12 @@
             case interface_soundcard:
 
                 src_hops_open_interface_soundcard(obj);
+
+            break;
+
+            case interface_shm:
+
+                src_hops_open_interface_shm(obj);
 
             break;
 
@@ -224,6 +231,18 @@
 
     }
 
+    void src_hops_open_interface_shm(src_hops_obj * obj) {
+
+        size_t shm_size = sizeof(sem_t) * 2 + (size_t)(obj->bufferSize);
+        int fd = shm_open(obj->interface->shmName, O_RDWR, 0666);
+        if (fd == -1) {
+            printf("Sink hops: Connot open shared memory\n");
+            exit(EXIT_FAILURE);
+        }
+        obj->shm = (struct src_hops_shm*)
+          mmap(NULL, shm_size, PROT_WRITE | PROT_READ, MAP_SHARED, fd, 0);
+
+    }
     void src_hops_close(src_hops_obj * obj) {
 
         switch(obj->interface->type) {
@@ -237,6 +256,12 @@
             case interface_soundcard:
 
                 src_hops_close_interface_soundcard(obj);
+
+            break;
+
+            case interface_shm:
+
+                src_hops_close_interface_shm(obj);
 
             break;
 
@@ -260,6 +285,12 @@
     void src_hops_close_interface_soundcard(src_hops_obj * obj) {
 
         snd_pcm_close(obj->ch);
+
+    }
+
+    void src_hops_close_interface_shm(src_hops_obj * obj) {
+
+        munmap(obj->shm, sizeof(sem_t) * 2 + (size_t)(obj->bufferSize));
 
     }
 
@@ -313,6 +344,12 @@
             case interface_soundcard:
 
                 rtnValue = src_hops_process_interface_soundcard(obj);
+
+            break;
+
+            case interface_shm:
+
+                rtnValue = src_hops_process_interface_shm(obj);
 
             break;
 
@@ -371,6 +408,33 @@
 
         }
 
+        return rtnValue;
+
+    }
+
+    int src_hops_process_interface_shm(src_hops_obj * obj) {
+
+        struct timespec ts;
+        int rtnValue;
+
+        clock_gettime(CLOCK_REALTIME, &ts);
+        ts.tv_sec += 10;
+        if (sem_timedwait(&obj->shm->store, &ts) == -1) {
+            rtnValue = -1;
+        }
+        else if (sem_wait(&obj->shm->access) == -1) {
+            rtnValue = -1;
+        }
+        else {
+            int i;
+            const int N = obj->hopSize * obj->nChannels;
+            int16_t *temp = (int16_t*)obj->buffer;
+            for (i = 0; i < N; ++i) {
+                temp[i] = obj->shm->data[i];
+            }
+            sem_post(&obj->shm->access);
+            rtnValue = 0;
+        }
         return rtnValue;
 
     }

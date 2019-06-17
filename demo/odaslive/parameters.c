@@ -203,6 +203,14 @@
                 tmpStr2 = parameters_lookup_string(fileConfig, "raw.interface.devicename");
 
                 cfg->interface = interface_construct_soundcard_by_name(tmpStr2);
+                free((void *) tmpStr2);
+
+            }
+            else if (strcmp(tmpStr1, "shared_memory") == 0) {
+
+                tmpStr2 = parameters_lookup_string(fileConfig, "raw.interface.shmname");
+                cfg->interface = interface_construct_shm(tmpStr2);
+                free((void *) tmpStr2);
 
             }
             else {
